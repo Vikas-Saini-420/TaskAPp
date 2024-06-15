@@ -1,5 +1,6 @@
 package com.example.ToDoApp.controller;
 
+import com.example.ToDoApp.DTO.TaskDTO;
 import com.example.ToDoApp.model.Task;
 import com.example.ToDoApp.service.TaskInterface;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,8 +22,8 @@ public class TaskController {
 
     @Operation(summary = "Get all tasks")
     @GetMapping("/all")
-    public ResponseEntity<List<Task>> getAllTasks() {
-        List<Task> taskList = taskInterface.getAllTasks();
+    public ResponseEntity<List<TaskDTO>> getAllTasks() {
+        List<TaskDTO> taskList = taskInterface.getAllTasks();
         if(taskList.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else return ResponseEntity.ok(taskList);
@@ -30,8 +31,8 @@ public class TaskController {
 
     @Operation(summary = "Get tasks by list ID")
     @GetMapping("/list/{listId}")
-    public ResponseEntity<List<Task>> getTasksByListId(@PathVariable Long listId) {
-        List<Task> taskList = taskInterface.getTasksByListId(listId);
+    public ResponseEntity<List<TaskDTO>> getTasksByListId(@PathVariable Long listId) {
+        List<TaskDTO> taskList = taskInterface.getTasksByListId(listId);
         if(taskList.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else return ResponseEntity.ok(taskList);
@@ -39,18 +40,17 @@ public class TaskController {
 
     @Operation(summary = "Get task by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-       Task task = taskInterface.getTask(id);
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
+       TaskDTO task = taskInterface.getTask(id);
        if(task == null) {
            return ResponseEntity.notFound().build();
        } else return ResponseEntity.ok(task);
     }
 
     @Operation(summary = "Add a new task")
-
     @PostMapping
-    public ResponseEntity<Task> addTask(@RequestBody Task task) {
-        return ResponseEntity.ok(taskInterface.addTask(task));
+    public ResponseEntity<Task> addTask(@RequestBody TaskDTO task, @RequestParam Long userId) {
+        return ResponseEntity.ok(taskInterface.addTask(task, userId));
     }
 
     @Operation(summary = "Update task")
@@ -81,6 +81,15 @@ public class TaskController {
         } else {
             return ResponseEntity.ok(task);
         }
+    }
+
+    @Operation(summary = "get task for user")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TaskDTO>> getTasksByUserId(@PathVariable Long userId) {
+        List<TaskDTO> taskList = taskInterface.getTasksByUserId(userId);
+        if(taskList.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else return ResponseEntity.ok(taskList);
     }
 
 }

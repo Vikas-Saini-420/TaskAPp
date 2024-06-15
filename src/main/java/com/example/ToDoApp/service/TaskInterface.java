@@ -1,5 +1,6 @@
 package com.example.ToDoApp.service;
 
+import com.example.ToDoApp.DTO.TaskDTO;
 import com.example.ToDoApp.model.Task;
 
 import java.time.LocalDate;
@@ -47,17 +48,17 @@ public interface TaskInterface {
     public void updateTask(Long id, String title, String description, Long userId, Long listId, LocalDate dueDate);
     public Task deleteTask(Long id);
 
-    public Task getTask(Long id);
+    public TaskDTO getTask(Long id);
 
-    public List<Task> getAllTasks();
+    public List<TaskDTO> getAllTasks();
 
-    public List<Task> getTasksByListId(Long listId);
+    public List<TaskDTO> getTasksByListId(Long listId);
 
-    public List<Task> getTasksByUserId(Long userId);
+    public List<TaskDTO> getTasksByUserId(Long userId);
 
     public List<Task> getTasksByDueDate(LocalDate dueDate);
 
-    public Task addTask(Task task);
+    public Task addTask(TaskDTO task, Long userId);
 
     public Task updateTask(Task task, Long id);
 

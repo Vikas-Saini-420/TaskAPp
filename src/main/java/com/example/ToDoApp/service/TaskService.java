@@ -1,7 +1,10 @@
 package com.example.ToDoApp.service;
 
+import com.example.ToDoApp.DTO.TaskDTO;
 import com.example.ToDoApp.model.Task;
+import com.example.ToDoApp.model.AppUser;
 import com.example.ToDoApp.repository.TaskRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,8 +15,14 @@ public class TaskService implements TaskInterface {
 
     private final TaskRepository taskRepository;
 
-    public TaskService(TaskRepository taskRepository) {
+    private final UserService userService;
+
+    private final ModelMapper modelMapper;
+
+    public TaskService(TaskRepository taskRepository, UserService userService) {
         this.taskRepository = taskRepository;
+        this.userService = userService;
+        this.modelMapper = new ModelMapper();
     }
 
 
@@ -37,7 +46,6 @@ public class TaskService implements TaskInterface {
             task.setTitle(title);
             task.setDescription(description);
             task.setCompleted(completed);
-            task.setUserId(userId);
             task.setListId(listId);
             task.setDueDate(dueDate);
             taskRepository.save(task);
@@ -51,7 +59,6 @@ public class TaskService implements TaskInterface {
         if(task != null) {
             task.setTitle(title);
             task.setDescription(description);
-            task.setUserId(userId);
             task.setListId(listId);
             task.setDueDate(dueDate);
             taskRepository.save(task);
@@ -69,23 +76,27 @@ public class TaskService implements TaskInterface {
     }
 
     @Override
-    public Task getTask(Long id) {
-        return taskRepository.getTaskById(id);
+    public TaskDTO getTask(Long id) {
+        Task task = taskRepository.getTaskById(id);
+        return modelMapper.map(task, TaskDTO.class);
     }
 
     @Override
-    public List<Task> getAllTasks() {
-        return taskRepository.getAllTasks();
+    public List<TaskDTO> getAllTasks() {
+        List<Task> tasks = taskRepository.getAllTasks();
+        return tasks.stream().map(task -> modelMapper.map(task, TaskDTO.class)).toList();
     }
 
     @Override
-    public List<Task> getTasksByListId(Long listId) {
-        return taskRepository.getTasksByListId(listId);
+    public List<TaskDTO> getTasksByListId(Long listId) {
+        List<Task> tasks = taskRepository.getTasksByListId(listId);
+        return tasks.stream().map(task -> modelMapper.map(task, TaskDTO.class)).toList();
     }
 
     @Override
-    public List<Task> getTasksByUserId(Long userId) {
-        return taskRepository.getTasksByUserId(userId);
+    public List<TaskDTO> getTasksByUserId(Long userId) {
+        List<Task> tasks = taskRepository.getTasksByUserId(userId);
+        return tasks.stream().map(task -> modelMapper.map(task, TaskDTO.class)).toList();
     }
 
     @Override
@@ -94,8 +105,13 @@ public class TaskService implements TaskInterface {
     }
 
     @Override
-    public Task addTask(Task task) {
-        return taskRepository.save(task);
+    public Task addTask(TaskDTO task, Long id) {
+        AppUser appUser = userService.getUserById(id);
+        Task newtask = modelMapper.map(task, Task.class);
+        if(appUser != null) {
+            newtask.setAppUser(appUser);
+            return taskRepository.save(newtask);
+        } else throw new RuntimeException("AppUser not found");
     }
 
     @Override
@@ -105,7 +121,6 @@ public class TaskService implements TaskInterface {
             oldTask.setTitle(task.getTitle());
             oldTask.setDescription(task.getDescription());
             oldTask.setCompleted(task.isCompleted());
-            oldTask.setUserId(task.getUserId());
             oldTask.setListId(task.getListId());
             oldTask.setDueDate(task.getDueDate());
             taskRepository.save(oldTask);

@@ -1,10 +1,6 @@
 package com.example.ToDoApp.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,7 +18,7 @@ import java.time.LocalDate;
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // TODO: Add validation
@@ -32,7 +28,10 @@ public class Task {
     @NotBlank(message = "Description cannot be empty")
     private String description;
     private boolean completed;
-    private Long userId;
+
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @JoinColumn(name = "appuser_id")
+    private AppUser appUser;
     private Long listId;
     private LocalDate createdDate = LocalDate.now();
     @NotNull
@@ -42,7 +41,6 @@ public class Task {
         this.title = title;
         this.description = description;
         this.completed = completed;
-        this.userId = userId;
         this.listId = listId;
         this.dueDate = dueDate;
     }
@@ -50,7 +48,6 @@ public class Task {
     public Task(String title, String description, Long userId, Long listId, LocalDate dueDate) {
         this.title = title;
         this.description = description;
-        this.userId = userId;
         this.listId = listId;
         this.dueDate = dueDate;
     }
